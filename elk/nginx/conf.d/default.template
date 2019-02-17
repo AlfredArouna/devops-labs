@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    server_name default_server;
+    location / {
+        #proxy_pass http://localhost:5601;
+        proxy_pass http://${KIBANA_HOST}:${KIBANA_PORT};
+        #proxy_pass ${KIBANA_URL};
+    }
+
+    location /nginx_status {
+        # Turn on nginx stats
+        stub_status on;
+
+        # I do not need logs for stats
+        access_log   off;
+
+        # Security: Only allow access from 127.0.0.1 IP #
+        alllow 127.0.0.1;
+   
+        # Send rest of the world to /dev/null #
+        deny all;
+   }
+}

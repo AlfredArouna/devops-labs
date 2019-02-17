@@ -1,0 +1,7 @@
+FROM elastic/logstash:6.6.0
+
+COPY pki/tls/certs/logstash.crt /etc/pki/tls/certs/logstash.crt
+COPY pki/tls/private/logstash.key /etc/pki/tls/private/logstash.key
+COPY logstash/conf.d/01-logstash.conf /etc/logstash/conf.d/01-logstash.conf
+
+RUN logstash-plugin install logstash-input-beats && logstash-plugin update logstash-input-beats

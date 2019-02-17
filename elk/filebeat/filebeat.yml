@@ -1,0 +1,74 @@
+#filebeat.modules:
+#  - module: nginx
+#    # Access logs
+#    access:
+#      enabled: true
+#    # Error logs
+#    error:
+#      enabled: true
+
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+
+
+
+#   filebeat.autodiscover:
+#  providers:
+#    - type: docker
+#      hints.enabled: true
+
+#filebeat.prospectors:
+#- type: log
+#  paths:
+#  - '/var/lib/docker/containers/*/*.log'
+#  json.message_key: log
+#  json.keys_under_root: true
+#  processors:
+#  - add_docker_metadata: ~
+
+filebeat.inputs:
+- type: docker
+  enabled: true
+  containers:
+    #stream: "stdout"
+    stream: all
+    ids:
+      - '*'
+
+logging.level: debug
+
+
+
+
+processors:
+- add_cloud_metadata: ~
+
+#output.elasticsearch:
+#  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+#  username: '${ELASTICSEARCH_USERNAME:}'
+#  password: '${ELASTICSEARCH_PASSWORD:}'
+
+# Defines if the HTTP endpoint is enabled.
+http.enabled: true
+
+# The HTTP endpoint will bind to this hostname or IP address. It is recommended to use only localhost.
+http.host: localhost
+
+# Port on which the HTTP endpoint will bind. Default is 5066.
+http.port: 5066
+
+
+output.elasticsearch:
+  enabled: false
+
+output:
+  logstash:
+    enabled: true
+    hosts:
+      - logstash:5044
+    ssl:
+      certificate_authorities:
+        - '/etc/pki/tls/certs/logstash.crt'

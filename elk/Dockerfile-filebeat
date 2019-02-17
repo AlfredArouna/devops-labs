@@ -1,0 +1,7 @@
+FROM elastic/filebeat:6.6.0
+
+COPY pki/tls/certs/logstash.crt /etc/pki/tls/certs/logstash.crt
+COPY filebeat/filebeat.yml /usr/share/filebeat/filebeat.yml
+USER root
+RUN chown root:filebeat /usr/share/filebeat/filebeat.yml
+#USER filebeat
