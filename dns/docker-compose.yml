@@ -1,0 +1,60 @@
+version: '2.2'
+
+services:
+  dnsdist:
+    build:
+     dockerfile: Dockerfile-dnsdist
+     context: .
+    container_name: dnsdist
+    volumes:
+       - ./etc/dnsdist/:/etc/dnsdist/
+       - ./etc/supervisor/conf.d/:/etc/supervisor/conf.d/
+       - ./var/log/supervisor/:/var/log/supervisor/
+    ports:
+     - 53:53
+     - 53:53/udp
+    #tty: true
+    expose:
+     - 8083
+    healthcheck:
+     test: ["CMD", "curl", "localhost:8083" ]
+     timeout: 10s
+     retries: 5
+    depends_on:
+     nsd:
+       condition: service_healthy
+    networks:
+      dns_net:
+        ipv4_address: 172.16.53.153
+    #environment:
+    #  - NSD_IP=10.10.10.53
+    #command: /bin/bash -c "envsubst < /etc/dnsdist/dnsdist.template > /etc/dnsdist/dnsdist.conf && /usr/bin/dnsdist;'"
+
+
+  nsd:
+    build:
+      dockerfile: Dockerfile-nsd
+      context: .
+    container_name: nsd
+    volumes:
+      - ./etc/nsd:/etc/nsd
+      - ./var/log/nsd:/var/log/nsd
+    expose:
+      - 530
+      - 530/udp
+    healthcheck:
+     test: ["CMD", "nsd-control", "status"]
+     timeout: 10s
+     retries: 5
+    networks:
+     dns_net:
+       ipv4_address: 172.16.53.53
+
+# https://stackoverflow.com/questions/39493490/provide-static-ip-to-docker-containers-via-docker-compose
+networks:
+  dns_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.16.53.0/24
+         gateway: 172.16.53.1

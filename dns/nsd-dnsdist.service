@@ -1,0 +1,9 @@
+[Unit]
+Description=nsd-dnsdist
+After=docker.service
+Requires=docker.service
+
+[Service]
+KillMode=none
+ExecStart=cd /opt/dns && /usr/bin/docker-compose up -d --build
+ExecStop=-cd /opt/dns && /usr/bin/docker-compose down -v
